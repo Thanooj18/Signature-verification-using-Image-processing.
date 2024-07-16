@@ -1,0 +1,64 @@
+% Signature Verification using Image Processing
+% This script compares two signature images and verifies their validity
+
+clc;
+clear;
+close all;
+
+% Read the signature images
+[filename1, pathname1] = uigetfile({'*.png;*.jpg;*.jpeg;*.bmp','Image Files (*.png,*.jpg,*.jpeg,*.bmp)'}, 'Select the first signature image');
+img1 = imread(fullfile(pathname1, filename1));
+
+[filename2, pathname2] = uigetfile({'*.png;*.jpg;*.jpeg;*.bmp','Image Files (*.png,*.jpg,*.jpeg,*.bmp)'}, 'Select the second signature image');
+img2 = imread(fullfile(pathname2, filename2));
+
+% Convert images to grayscale
+img1_gray = rgb2gray(img1);
+img2_gray = rgb2gray(img2);
+
+% Resize images to the same size (if necessary)
+img1_gray = imresize(img1_gray, [300 600]);
+img2_gray = imresize(img2_gray, [300 600]);
+
+% Display the original images
+figure('Name', 'Signature Images');
+subplot(1,2,1);
+imshow(img1);
+title('Signature 1');
+subplot(1,2,2);
+imshow(img2);
+title('Signature 2');
+
+% Apply edge detection
+edge_img1 = edge(img1_gray, 'Canny');
+edge_img2 = edge(img2_gray, 'Canny');
+
+% Display the edge-detected images
+figure('Name', 'Edge Detected Images');
+subplot(1,2,1);
+imshow(edge_img1);
+title('Edge Detection 1');
+subplot(1,2,2);
+imshow(edge_img2);
+title('Edge Detection 2');
+
+% Calculate the similarity using correlation
+correlation = corr2(edge_img1, edge_img2);
+
+% Set a threshold for determining validity
+threshold = 0.7;
+
+% Verify the signatures
+if correlation > threshold
+    msg = 'Valid of Signature verification';
+else
+    msg = 'Invalid of Signature verification ';
+end
+
+% Display the result
+figure('Name', 'Verification Result');
+imshowpair(img1, img2, 'montage');
+title(['Verification Result: ', msg]);
+
+% Display message in a dialog box
+msgbox(['Verification Result: ', msg], 'Result');
